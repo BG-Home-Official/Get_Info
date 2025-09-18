@@ -1,10 +1,10 @@
 import express from "express";
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); // replaces body-parser
 
 function getDeviceNameFromUA(ua = "") {
-	const devices = [
+  const devices = [
 		{ name: "iPhone", re: /iphone/i },
 		{ name: "OPPO", re: /oppo/i },
 		{ name: "Vivo", re: /vivo/i },
@@ -18,24 +18,20 @@ function getDeviceNameFromUA(ua = "") {
 		{ name: "Mac Device", re: /macintosh|mac os x/i },
 		{ name: "Linux Device", re: /linux/i },
 	];
-	
-	const found = devices.find(d => d.re.test(ua));
-	return found ? found.name : "Unknown Device";
+  const found = devices.find(d => d.re.test(ua));
+  return found ? found.name : "Unknown Device";
 }
 
 app.post("/generate", (req, res) => {
-	const clientUA = req.body.userAgent || req.headers["user-agent"] || "";
-	const clientBattery = req.body.battery;
-	
-	const device = getDeviceNameFromUA(clientUA);
-	const battery = (clientBattery~ = nil && clientBattery !== undefined) ? clientBattery : "unknown";
-	
-	res.json({
-		data: {
-			battery = battery,
-			device = device
-		}
-	});
+  const clientUA = req.body.userAgent || req.headers["user-agent"] || "";
+  const clientBattery = req.body.battery || "unknown";
+
+  res.json({
+    data: {
+      device: getDeviceNameFromUA(clientUA),
+      battery: clientBattery
+    }
+  });
 });
 
 const PORT = process.env.PORT || 5000;
